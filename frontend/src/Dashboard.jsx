@@ -74,6 +74,6 @@ export default function Dashboard({ sessions, technologies }) {
       </div>
       <p className="muted">Reducción promedio en sesiones filtradas · {fields.map((f, i) =>
         f.label + ' ' + (averages[i] === null ? '—' : number(averages[i]) + '%')).join(' · ')}</p>
-    </> : <p>No hay tratamientos finalizados para los filtros seleccionados.</p>}
+    </> : <p>No hay tratamientos finalizados para los filtros seleccionados. <a href="#mediciones">Registrar una entrada</a></p>}
   </section>;
 }

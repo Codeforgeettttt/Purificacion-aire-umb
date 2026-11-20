@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.4.0
+- Navegación lateral, módulos enfocados, tema persistente y feedback accesible.
+
 ## 1.3.0
 - Instalador NSIS, ejecutable portátil, icono y compilación de Windows reproducible.
 

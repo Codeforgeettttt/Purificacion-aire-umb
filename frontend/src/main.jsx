@@ -6,6 +6,7 @@ import Treatment from './Treatment.jsx';
 import Validation from './Validation.jsx';
 import Dashboard from './Dashboard.jsx';
 import Reports from './Reports.jsx';
+import Shell from './Shell.jsx';
 import './style.css';
 
 function App() {
@@ -63,16 +64,14 @@ function App() {
       setBusy(false);
     }
   }
-  return <main><nav aria-label="Principal"><a href="#inicio">Inicio</a><a href="#dashboard">Panel BI</a><a href="#mediciones">Mediciones</a><a href="#tratamientos">Tratamientos</a><a href="#validacion">Validación</a><a href="#reportes">Reportes</a></nav>
-    <header id="inicio"><p className="eyebrow">UMB · INTELIGENCIA DE NEGOCIOS</p><h1>Air Quality Intelligence</h1>
-      <p>Monitorea la calidad del aire y evalúa tratamientos en un entorno simulado.</p></header>
-    <div role="status" aria-live="polite">{busy ? 'Cargando…' : notice}</div>
-    {error && <p role="alert">{error}</p>}
-    <Dashboard sessions={sessions} technologies={technologies} />
-    <Monitoring rows={rows} action={action} busy={busy} />
-    <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} />
-    <Validation sessions={sessions} />
-    <Reports alerts={alerts} sessions={sessions} technologies={technologies} />
-  </main>;
+  return <Shell busy={busy} notice={notice} error={error}
+    retry={() => action(() => api('technologies').then(setTechnologies))}
+    panels={{
+      dashboard: <Dashboard sessions={sessions} technologies={technologies} />,
+      mediciones: <Monitoring rows={rows} action={action} busy={busy} />,
+      tratamientos: <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} />,
+      validacion: <Validation sessions={sessions} />,
+      reportes: <Reports alerts={alerts} sessions={sessions} technologies={technologies} />
+    }} />;
 }
 createRoot(document.getElementById('root')).render(<App />);
