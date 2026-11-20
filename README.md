@@ -38,9 +38,21 @@ Las salidas corresponden a una simulación. Las capturas manuales se identifican
 
 En el escenario de demostración, 15 minutos simulados de tratamiento con HEPA reducen el PM2.5 de **60 a 9,92 µg/m³** (83,47 %). El CO se mantiene en **10 ppm**. Esta comparación muestra por qué la evaluación se hace por contaminante y considera tanto el porcentaje de reducción como la concentración final. [Escenario reproducible y comparación de tecnologías](docs/resultados-analisis.md)
 
+## Tecnologías utilizadas
+
+| Área | Tecnologías | Función |
+| --- | --- | --- |
+| Interfaz web | JavaScript, React 19, Vite 7 y CSS | Formularios, navegación, temas y compilación de la interfaz. |
+| Inteligencia de negocios | Recharts 3 | Gráficas comparativas, tendencias y distribuciones del dashboard. |
+| API local | Node.js 24 y Express 5 | Validación de mediciones, simulación, alertas y consultas. |
+| Persistencia | SQLite con `node:sqlite` | Historial, muestras, preferencias y respaldos locales. |
+| Informes | PDFKit y generación CSV | Exportación de resultados sin servicios externos. |
+| Escritorio y distribución | Electron 45, Electron Builder y NSIS | Ventana de escritorio, instalador y ejecutable portátil para Windows x64. |
+| Calidad y automatización | ESLint, `node:test` y GitHub Actions | Análisis estático, pruebas automatizadas y verificación de paquetes. |
+
 ## Desarrollo y pruebas
 
-El proyecto integra React, Vite y Recharts para la interfaz, Express para la API local, SQLite para la persistencia y Electron para la distribución de escritorio. Para trabajar con el código fuente se requiere Node.js 24.
+Para compilar y desarrollar la aplicación desde el código fuente se requiere Node.js 24 y npm.
 
 ```sh
 npm ci
