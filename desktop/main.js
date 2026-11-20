@@ -45,7 +45,7 @@ async function launch() {
     title: 'Air Quality Intelligence Desktop', width: 1360, height: 900,
     minWidth: 780, minHeight: 600, show: !smoke,
     icon: join(app.getAppPath(), 'desktop', 'icon.png'),
-    webPreferences: { session: profile, contextIsolation: true, nodeIntegration: false, sandbox: true }
+    webPreferences: { session: profile, contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: !smoke }
   });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   function guard(event, url) {
@@ -62,9 +62,49 @@ async function launch() {
     if (unauthorized.status !== 403 || audit[0].ok !== true || !Array.isArray(audit[1]) || audit[2] !== 'undefined' || !audit[3]) {
       throw new Error('Falló el arranque o el aislamiento de escritorio: ' + JSON.stringify(audit));
     }
-    const created = await window.webContents.executeJavaScript("fetch('/api/measurements/simulate',{method:'POST'}).then(r=>r.status)");
-    if (created !== 201) throw new Error('Falló la escritura desde Electron.');
-    writeFileSync(join(smoke, 'desktop-smoke.json'), JSON.stringify({ ok: true, previous: audit[1].length, electron: process.versions.electron }));
+    const web = window.webContents;
+    async function wait(label, script) {
+      writeFileSync(join(smoke, 'desktop-smoke.json'), JSON.stringify({ step: label }));
+      for (let i = 0; i < 100; i++) {
+        const result = await web.executeJavaScript(script);
+        if (result) return result;
+        await new Promise(resolve => setTimeout(resolve, 60));
+      }
+      throw new Error('La interfaz no respondió: ' + label);
+    }
+    await web.executeJavaScript("location.hash = 'mediciones'");
+    await wait('captura simulada', "Boolean([...document.querySelectorAll('button')].find(b => b.textContent === 'Simular entrada' && !b.disabled))");
+    await web.executeJavaScript("[...document.querySelectorAll('button')].find(b => b.textContent === 'Simular entrada').click()");
+    await wait('historial de entrada', "document.querySelectorAll('#mediciones tbody tr').length");
+    await web.executeJavaScript("location.hash = 'tratamientos'");
+    await wait('inicio de tratamiento', "Boolean(document.querySelector('#tratamientos form button:not(:disabled)'))");
+    await web.executeJavaScript("document.querySelector('#tratamientos input[name=duration]').value='1'; document.querySelector('#tratamientos form button').click();");
+    await web.executeJavaScript("location.hash = 'dashboard'");
+    await wait('indicadores de tratamiento', "document.querySelectorAll('#dashboard .kpis article').length >= 4");
+    writeFileSync(join(smoke, 'desktop-smoke.json'), JSON.stringify({ step: 'gráficos listos' }));
+    const charts = await web.executeJavaScript("document.querySelectorAll('#dashboard .chart').length");
+    const request = path => fetch(origin + '/api/' + path, { headers: { 'X-Air-Desktop': token }, signal: AbortSignal.timeout(5000) });
+    writeFileSync(join(smoke, 'desktop-smoke.json'), JSON.stringify({ step: 'solicitud PDF', charts }));
+    const pdf = await request('reports/treatments.pdf');
+    const pdfText = await pdf.text();
+    writeFileSync(join(smoke, 'desktop-smoke.json'), JSON.stringify({ step: 'solicitud CSV', charts }));
+    const csv = await request('reports/treatments.csv');
+    const csvText = await csv.text();
+    writeFileSync(join(smoke, 'desktop-smoke.json'), JSON.stringify({ step: 'solicitud SQLite', charts }));
+    const backup = await request('data/backup');
+    const backupText = await backup.text();
+    writeFileSync(join(smoke, 'desktop-smoke.json'), JSON.stringify({ step: 'exportaciones listas' }));
+    const offline = await Promise.race([
+      web.executeJavaScript("fetch('https://example.invalid/').then(() => false, () => true)"),
+      new Promise(resolve => setTimeout(() => resolve(false), 4000))
+    ]);
+    const flow = { charts, pdf: pdfText.startsWith('%PDF-'), csv: csvText.includes('sesion'),
+      backup: backupText.startsWith('SQLite format 3'), offline };
+    if (flow.charts < 3 || !flow.pdf || !flow.csv || !flow.backup || !flow.offline) {
+      throw new Error('Falló el flujo de escritorio: ' + JSON.stringify(flow));
+    }
+    writeFileSync(join(smoke, 'desktop-smoke.json'), JSON.stringify({ ok: true, previous: audit[1].length, electron: process.versions.electron, flow,
+      totalWorkingSetKiB: app.getAppMetrics().reduce((sum, item) => sum + (item.memory?.workingSetSize ?? 0), 0) }));
     app.quit();
   }
 }
@@ -80,6 +120,7 @@ else {
     if (!server || closing) return;
     event.preventDefault();
     closing = true;
+    server.closeAllConnections();
     server.close(() => {
       db.close();
       app.quit();

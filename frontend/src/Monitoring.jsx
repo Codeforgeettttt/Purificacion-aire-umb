@@ -7,7 +7,14 @@ export default function Monitoring({ rows, action, busy }) {
   const [seed, setSeed] = useState('');
   const [filter, setFilter] = useState('');
   const [metric, setMetric] = useState('pm25');
-  const filtered = rows.filter(row => !filter || (row.scenario ?? row.source) === filter);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(0);
+  const needle = search.trim().toLowerCase();
+  const filtered = rows.filter(row => (!filter || (row.scenario ?? row.source) === filter) &&
+    (!needle || ['#' + row.id, row.scenario, row.seed, row.level, dateTime(row.recorded_at)].some(value => value?.toLowerCase().includes(needle))));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / 25));
+  const currentPage = Math.min(page, pageCount - 1);
+  const visible = filtered.slice(currentPage * 25, (currentPage + 1) * 25);
   const trend = filtered.slice(0, 40).reverse().map((row, i) => ({ ...row, minute: i + 1 }));
   return <section id="mediciones">
     <h2>Mediciones de entrada</h2>
@@ -35,7 +42,8 @@ export default function Monitoring({ rows, action, busy }) {
       </div>
     </form>
     <div className="grid">
-      <label>Filtrar por origen o escenario<select value={filter} onChange={e => setFilter(e.target.value)}>
+      <label>Buscar en el historial<input type="search" value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} /></label>
+      <label>Filtrar por origen o escenario<select value={filter} onChange={e => { setFilter(e.target.value); setPage(0); }}>
         <option value="">Todos</option>{[...new Set(rows.map(row => row.scenario ?? row.source))].map(value => <option key={value}>{value}</option>)}
       </select></label>
       <label>Contaminante de tendencia<select value={metric} onChange={e => setMetric(e.target.value)}>
@@ -46,9 +54,14 @@ export default function Monitoring({ rows, action, busy }) {
     {filtered.length === 0 ? <p>No hay mediciones para esta selección.</p> : <div className="table-wrap"><table>
       <caption>Historial de entrada · hora de Colombia</caption>
       <thead><tr><th>Fecha</th><th>Origen</th>{fields.map(f => <th key={f.key}>{f.label} ({f.unit})</th>)}<th>Nivel</th></tr></thead>
-      <tbody>{filtered.map(row => <tr key={row.id}><td>{dateTime(row.recorded_at)}</td>
+      <tbody>{visible.map(row => <tr key={row.id}><td>{dateTime(row.recorded_at)}</td>
         <td>{row.source === 'manual' ? 'Manual sin verificar' : 'Simulado'}{row.scenario && ' · ' + row.scenario}{row.seed && <small> · {row.seed}</small>}</td>{fields.map(f => <td key={f.key}>{number(row[f.key])}</td>)}
         <td><span className={'level ' + row.level.toLowerCase()}>{row.level}</span></td></tr>)}</tbody>
     </table></div>}
+    {pageCount > 1 && <div className="actions">
+      <button className="secondary" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Anterior</button>
+      <span>Página {currentPage + 1} de {pageCount}</span>
+      <button className="secondary" disabled={currentPage + 1 === pageCount} onClick={() => setPage(currentPage + 1)}>Siguiente</button>
+    </div>}
   </section>;
 }

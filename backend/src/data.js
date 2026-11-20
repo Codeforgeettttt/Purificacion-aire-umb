@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import express from 'express';
-import { InputError, registerMeasurement } from './monitoring.js';
+import { InputError, readConcentrations, registerMeasurement } from './monitoring.js';
 import { readSessions, startSession } from './treatment.js';
 
 const tables = ['technologies', 'measurements', 'sessions', 'samples', 'alerts', 'preferences'];
@@ -38,9 +38,20 @@ function restore(db, bytes) {
         const names = columns.join(',');
         const insert = db.prepare('INSERT INTO ' + table + ' (' + names + ') VALUES (' + columns.map(() => '?').join(',') + ')');
         for (const row of input.prepare('SELECT ' + names + ' FROM ' + table).iterate()) {
+          if (table === 'measurements' || table === 'samples') readConcentrations(row);
+          if (table === 'measurements' && !Number.isFinite(Date.parse(row.recorded_at))) throw new Error('Fecha inválida.');
+          if (table === 'sessions') {
+            readConcentrations(JSON.parse(row.exterior));
+            if (!Number.isSafeInteger(row.started_at) || !Number.isInteger(row.duration)) throw new Error('Sesión inválida.');
+          }
           insert.run(...columns.map(name => row[name]));
         }
       }
+      const invalidSession = db.prepare(`SELECT sessions.id FROM sessions
+        LEFT JOIN samples ON samples.session_id=sessions.id GROUP BY sessions.id
+        HAVING MIN(samples.minute) IS NULL OR MIN(samples.minute)<>0 OR COUNT(*)<>MAX(samples.minute)+1
+          OR MAX(samples.minute)>sessions.duration LIMIT 1`).get();
+      if (invalidSession) throw new Error('Secuencia de muestras inválida.');
       if (db.prepare('PRAGMA foreign_key_check').get()) throw new Error('Relaciones inválidas.');
       db.exec('COMMIT');
     } catch (error) {
@@ -72,18 +83,16 @@ export function installData(app, db, clock) {
       .run(theme, defaultDuration);
     res.json(settings(db));
   });
-  app.get('/api/data/backup', (_req, res, next) => {
+  app.get('/api/data/backup', (_req, res) => {
     const item = temporary();
     try {
       db.prepare('VACUUM INTO ?').run(item.path);
-    } catch (error) {
+      const bytes = readFileSync(item.path);
+      if (bytes.length > backupLimit) throw new InputError('El respaldo excede el límite de 64 MB.', 413);
+      res.attachment('air-quality-respaldo.sqlite').send(bytes);
+    } finally {
       item.cleanup();
-      throw error;
     }
-    res.download(item.path, 'air-quality-respaldo.sqlite', error => {
-      item.cleanup();
-      if (error) next(error);
-    });
   });
   app.post('/api/data/restore', express.raw({ type: 'application/octet-stream', limit: backupLimit }), (req, res) => {
     restore(db, req.body);

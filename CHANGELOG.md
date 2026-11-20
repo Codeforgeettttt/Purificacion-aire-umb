@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 2.1.0
+- Pruebas de extremo a extremo en Electron, restauración validada y comprobación offline. Historial con búsqueda y paginación. Dependencias de compilación fuera del ejecutable.
+
 ## 2.0.0
 - Respaldo y restauración SQLite, preferencias persistentes, confirmaciones y regeneración de datos demo.
 
