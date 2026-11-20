@@ -7,9 +7,11 @@ import Validation from './Validation.jsx';
 import Dashboard from './Dashboard.jsx';
 import Reports from './Reports.jsx';
 import Shell from './Shell.jsx';
+import DataManagement from './DataManagement.jsx';
 import './style.css';
 
 function App() {
+  const [settings, setSettings] = useState({ theme: 'light', defaultDuration: 15 });
   const [alerts, setAlerts] = useState([]);
   const [rows, setRows] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -25,7 +27,7 @@ function App() {
     setAlerts(await api('alerts'));
   }
   useEffect(() => {
-    Promise.all([reload(), api('technologies').then(setTechnologies)])
+    Promise.all([reload(), api('technologies').then(setTechnologies), api('settings').then(setSettings)])
       .catch(e => setError(e.message)).finally(() => setBusy(false));
   }, []);
   useEffect(() => {
@@ -64,14 +66,16 @@ function App() {
       setBusy(false);
     }
   }
-  return <Shell busy={busy} notice={notice} error={error}
+  return <Shell busy={busy} notice={notice} error={error} theme={settings.theme}
+    changeTheme={theme => action(async () => setSettings(await api('settings', { theme })))}
     retry={() => action(() => api('technologies').then(setTechnologies))}
     panels={{
       dashboard: <Dashboard sessions={sessions} technologies={technologies} alerts={alerts} />,
       mediciones: <Monitoring rows={rows} action={action} busy={busy} />,
-      tratamientos: <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} />,
+      tratamientos: <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} defaultDuration={settings.defaultDuration} />,
       validacion: <Validation sessions={sessions} technologies={technologies} />,
-      reportes: <Reports alerts={alerts} sessions={sessions} technologies={technologies} />
+      reportes: <Reports alerts={alerts} sessions={sessions} technologies={technologies} />,
+      datos: <DataManagement action={action} busy={busy} settings={settings} updateSettings={setSettings} />
     }} />;
 }
 createRoot(document.getElementById('root')).render(<App />);

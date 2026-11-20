@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 2.0.0
+- Respaldo y restauración SQLite, preferencias persistentes, confirmaciones y regeneración de datos demo.
+
 ## 1.9.0
 - Centro de alertas filtrable y reportes locales por fecha o sesión en PDF con gráficos y CSV.
 

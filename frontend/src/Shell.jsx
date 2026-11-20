@@ -5,7 +5,8 @@ const sections = [
   ['mediciones', 'Mediciones', '◉'],
   ['tratamientos', 'Tratamientos', '≋'],
   ['validacion', 'Validación', '✓'],
-  ['reportes', 'Alertas y reportes', '▤']
+  ['reportes', 'Alertas y reportes', '▤'],
+  ['datos', 'Datos y ajustes', '⚙']
 ];
 
 function currentSection() {
@@ -13,9 +14,9 @@ function currentSection() {
   return sections.some(([id]) => id === hash) ? hash : 'dashboard';
 }
 
-export default function Shell({ panels, busy, error, notice, retry }) {
+export default function Shell({ panels, busy, error, notice, retry, theme, changeTheme }) {
   const [active, setActive] = useState(currentSection);
-  const [dark, setDark] = useState(() => localStorage.getItem('air-theme') === 'dark');
+  const dark = theme === 'dark';
   useEffect(() => {
     const change = () => setActive(currentSection());
     window.addEventListener('hashchange', change);
@@ -23,7 +24,7 @@ export default function Shell({ panels, busy, error, notice, retry }) {
   }, []);
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    localStorage.setItem('air-theme', dark ? 'dark' : 'light');
+
   }, [dark]);
   return <div className="app-shell">
     <a className="skip" href="#contenido">Ir al contenido</a>
@@ -38,7 +39,7 @@ export default function Shell({ panels, busy, error, notice, retry }) {
     <main id="contenido" tabIndex={-1}>
       <div className="topline">
         <span className="eyebrow">MONITOREO AMBIENTAL</span>
-        <button className="secondary" type="button" aria-pressed={dark} onClick={() => setDark(!dark)}>
+        <button className="secondary" type="button" aria-pressed={dark} disabled={busy} onClick={() => changeTheme(dark ? 'light' : 'dark')}>
           {dark ? 'Modo claro' : 'Modo oscuro'}
         </button>
       </div>

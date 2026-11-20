@@ -14,7 +14,7 @@ export function Evolution({ session, field, timeline = 'Minuto', unit = ' min' }
     </ResponsiveContainer>
   </div>;
 }
-export default function Treatment({ rows, sessions, technologies, action, busy }) {
+export default function Treatment({ rows, sessions, technologies, action, busy, defaultDuration }) {
   const [technology, setTechnology] = useState('hepa');
   const [selected, select] = useState(null);
   const [key, setKey] = useState('pm25');
@@ -35,7 +35,7 @@ export default function Treatment({ rows, sessions, technologies, action, busy }
             #{row.id} · {dateTime(row.recorded_at)} · {row.level}</option>)}</select></label>
           <label>Tecnología<select value={technology} onChange={e => setTechnology(e.target.value)}>{technologies.items.map(t =>
             <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
-          <label>Duración (min)<input name="duration" type="number" min="1" max="120" defaultValue="15" required /></label>
+          <label>Duración (min)<input name="duration" type="number" min="1" max="120" key={defaultDuration} defaultValue={defaultDuration} required /></label>
         </div>
         <p className="muted">{{ hepa: 'HEPA captura partículas. CO y CO₂ mantienen su concentración.',
           carbon: 'El carbón actúa sobre gases compatibles. Los cuatro contaminantes del taller conservan su concentración.',

@@ -5,6 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { installMonitoring, InputError } from './monitoring.js';
 import { installTreatment } from './treatment.js';
 import { installReporting } from './reporting.js';
+import { installData } from './data.js';
 
 export async function createApp({ dbPath = process.env.DB_PATH || 'data/air.sqlite', development = false, clock = Date.now, accessToken, staticDir = resolve('dist') } = {}) {
   if (dbPath !== ':memory:') mkdirSync(dirname(dbPath), { recursive: true });
@@ -31,6 +32,7 @@ export async function createApp({ dbPath = process.env.DB_PATH || 'data/air.sqli
   installMonitoring(app, db);
   installTreatment(app, db, clock);
   installReporting(app, db, clock);
+  installData(app, db, clock);
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Ruta no encontrada.' }));
   app.use((err, _req, res, _next) => {
     const status = err instanceof InputError ? err.status : [400, 413].includes(err.status) ? err.status : 500;
