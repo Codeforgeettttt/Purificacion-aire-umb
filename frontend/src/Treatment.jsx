@@ -3,12 +3,12 @@ import { api, dateTime, fields, number } from './api.js';
 import { CartesianGrid, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export const sessionStatus = { running: 'En proceso', completed: 'Completado', stopped: 'Detenido' };
-export function Evolution({ session, field }) {
+export function Evolution({ session, field, timeline = 'Minuto', unit = ' min' }) {
   return <div className="chart" role="img" aria-label={'Evolución de ' + field.label + ' en ' + field.unit}>
     <ResponsiveContainer width="100%" height={240}>
       <LineChart data={session.samples} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="4 4" /><XAxis dataKey="minute" unit=" min" /><YAxis unit={' ' + field.unit} width={85} />
-        <Tooltip formatter={value => [number(value) + ' ' + field.unit, field.label]} labelFormatter={minute => 'Minuto ' + minute} />
+        <CartesianGrid strokeDasharray="4 4" /><XAxis dataKey="minute" unit={unit} /><YAxis unit={' ' + field.unit} width={85} />
+        <Tooltip formatter={value => [number(value) + ' ' + field.unit, field.label]} labelFormatter={minute => timeline + ' ' + minute} />
         <Line dataKey={field.key} stroke="#087d67" strokeWidth={3} dot={session.samples.length < 2} isAnimationActive={false} />
       </LineChart>
     </ResponsiveContainer>

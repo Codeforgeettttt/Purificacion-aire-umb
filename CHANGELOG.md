@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.5.0
+- Escenarios reproducibles, captura personalizada, tendencias, filtros y migración de origen.
+
 ## 1.4.0
 - Navegación lateral, módulos enfocados, tema persistente y feedback accesible.
 
