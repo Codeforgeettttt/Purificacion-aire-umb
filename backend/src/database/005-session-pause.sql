@@ -1,0 +1,2 @@
+ALTER TABLE sessions ADD COLUMN paused_at INTEGER;
+ALTER TABLE sessions ADD COLUMN paused_ms INTEGER NOT NULL DEFAULT 0 CHECK(paused_ms >= 0);

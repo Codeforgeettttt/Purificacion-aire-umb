@@ -58,6 +58,13 @@ test('API completa, historial en disco y alertas sin duplicados', async () => {
     assert.ok(finished.result.reductions.pm25 > 80);
     const other = await (await request('sessions', { measurementId: entry.id, duration: 15, technology: 'carbon' })).json();
     now += 1000;
+    const paused = await (await request('sessions/' + other.id + '/pause', {})).json();
+    assert.equal(paused.status, 'paused');
+    now += 10000;
+    const stillPaused = await (await request('sessions/' + other.id)).json();
+    assert.equal(stillPaused.current.minute, 2);
+    const resumed = await (await request('sessions/' + other.id + '/resume', {})).json();
+    assert.equal(resumed.status, 'running');
     const stopped = await (await request('sessions/' + other.id + '/stop', {})).json();
     assert.equal(stopped.status, 'stopped');
     assert.equal(stopped.final.minute, 2);

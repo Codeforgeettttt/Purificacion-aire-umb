@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { api, dateTime, fields, number } from './api.js';
 import { CartesianGrid, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-export const sessionStatus = { running: 'En proceso', completed: 'Completado', stopped: 'Detenido' };
+export const sessionStatus = { running: 'En proceso', paused: 'Pausado', completed: 'Completado', stopped: 'Detenido' };
 export function Evolution({ session, field, timeline = 'Minuto', unit = ' min' }) {
   return <div className="chart" role="img" aria-label={'Evolución de ' + field.label + ' en ' + field.unit}>
     <ResponsiveContainer width="100%" height={240}>
@@ -37,6 +37,10 @@ export default function Treatment({ rows, sessions, technologies, action, busy }
             <option key={t.id} value={t.id}>{t.label}</option>)}</select></label>
           <label>Duración (min)<input name="duration" type="number" min="1" max="120" defaultValue="15" required /></label>
         </div>
+        <p className="muted">{{ hepa: 'HEPA captura partículas. CO y CO₂ mantienen su concentración.',
+          carbon: 'El carbón actúa sobre gases compatibles. Los cuatro contaminantes del taller conservan su concentración.',
+          ventilation: 'La renovación acerca las concentraciones al escenario exterior y puede elevarlas.',
+          combined: 'Combina captura de partículas con renovación de aire.' }[technology]}</p>
         {['ventilation','combined'].includes(technology) && <fieldset><legend>Aire exterior simulado</legend><div className="grid">
           {fields.map(f => <label key={f.key}>{f.label} ({f.unit})<input name={f.key} type="number" step="any" min="0" max="100000" defaultValue={technologies.outdoorDefault[f.key]} required /></label>)}
         </div></fieldset>}
@@ -51,7 +55,14 @@ export default function Treatment({ rows, sessions, technologies, action, busy }
       </div>
       <p><strong>{sessionStatus[session.status]}</strong> · Minuto {session.current.minute} de {session.duration}</p>
       {session.coWarning && <p className="alert">CO elevado en la simulación. HEPA y carbón convencional no controlan este gas.</p>}
-      {session.status === 'running' && <button type="button" className="secondary" disabled={busy} onClick={() => action(() => api('sessions/' + session.id + '/stop', {}))}>Detener simulación</button>}
+      <progress aria-label="Progreso del tratamiento" value={session.current.minute} max={session.duration} />
+      {['running', 'paused'].includes(session.status) && <div className="actions">
+        <button type="button" className="secondary" disabled={busy} onClick={() => action(() =>
+          api('sessions/' + session.id + (session.status === 'running' ? '/pause' : '/resume'), {}))}>
+          {session.status === 'running' ? 'Pausar' : 'Reanudar'}
+        </button>
+        <button type="button" className="secondary" disabled={busy} onClick={() => action(() => api('sessions/' + session.id + '/stop', {}))}>Detener simulación</button>
+      </div>}
       <Evolution session={session} field={fields.find(f => f.key === key)} />
     </>}
   </section>;

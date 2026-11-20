@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.6.0
+- Pausa y reanudación persistentes, avance visible y explicación de cada tecnología.
+
 ## 1.5.0
 - Escenarios reproducibles, captura personalizada, tendencias, filtros y migración de origen.
 
