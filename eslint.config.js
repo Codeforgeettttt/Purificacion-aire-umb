@@ -7,5 +7,6 @@ export default [
   { files: ['**/*.{js,jsx}'], languageOptions: {
     globals: { ...globals.node, ...globals.browser },
     parserOptions: { ecmaFeatures: { jsx: true } }
-  }, plugins: { react }, rules: { 'react/jsx-uses-vars': 'error', 'react/jsx-uses-react': 'error' }}
+  }, plugins: { react }, rules: { 'no-unused-vars': ['error', {argsIgnorePattern: '^_'}], 'react/jsx-uses-vars': 'error', 'react/jsx-uses-react': 'error' }}
 ];
+
