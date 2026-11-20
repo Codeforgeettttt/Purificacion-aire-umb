@@ -28,6 +28,8 @@ test('API completa, historial en disco y alertas sin duplicados', async () => {
     assert.deepEqual(await (await request('health')).json(), { ok: true });
     assert.equal((await request('measurements', { pm25: 80, pm10: 4, co2: 0, co: 0 })).status, 400);
     assert.equal((await request('measurements/999')).status, 404);
+    assert.equal((await request('measurements/0')).status, 400);
+    assert.equal((await request('measurements/NaN')).status, 400);
     assert.equal((await request('absent')).status, 404);
     const entryResponse = await request('measurements', { pm25: 60, pm10: 100, co2: 1400, co: 10 });
     assert.equal(entryResponse.status, 201);

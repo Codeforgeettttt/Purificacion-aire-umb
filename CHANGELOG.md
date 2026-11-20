@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.1.0
+- Consultas de sesiones finalizadas, normalización de fechas y errores de red.
+
 ## 1.0.0
 - Datos de demostración, informe técnico, resultados reproducibles, guía de instalación y guion de video.
 

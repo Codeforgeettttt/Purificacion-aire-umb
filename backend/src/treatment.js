@@ -50,6 +50,7 @@ export function readSessions(db, now, id, stop = false) {
   try {
     const result = rows.map(row => {
       const current = db.prepare('SELECT * FROM sessions WHERE id=?').get(row.id);
+      if (current.status !== 'running') return serialize(db, current);
       saveProgress(db, current, now, stop);
       return serialize(db, db.prepare('SELECT * FROM sessions WHERE id=?').get(row.id));
     });
