@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 0.3.0
+- Motor de filtración y ventilación, sesiones y muestras persistentes, inicio, detención y gráfica de evolución.
+
 ## 0.2.0
 - Registro, simulación de entrada, reglas de clasificación e historial SQLite.
 
