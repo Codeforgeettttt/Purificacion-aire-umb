@@ -1,5 +1,10 @@
 name: Windows desktop
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    tags: ['v*']
+    branches: [main, 'feat/desktop-*']
+  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -16,8 +21,39 @@ jobs:
       - run: npm test
       - run: npm run package:win
       - run: node scripts/desktop-smoke.js release/win-unpacked/AirQualityIntelligence.exe
+      - shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          node scripts/desktop-smoke.js "release/AirQualityIntelligence-Portable-$version.exe"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $target = Join-Path $env:RUNNER_TEMP 'AirQualityInstall'
+          $install = Start-Process -FilePath "release/AirQualityIntelligence-Setup-$version.exe" -ArgumentList @('/S', "/D=$target") -PassThru -Wait -WindowStyle Hidden
+          if ($install.ExitCode -ne 0) { throw 'Falló el instalador NSIS' }
+          node scripts/desktop-smoke.js (Join-Path $target 'AirQualityIntelligence.exe')
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $uninstall = Start-Process -FilePath (Join-Path $target 'Uninstall AirQualityIntelligence.exe') -ArgumentList '/S' -PassThru -Wait -WindowStyle Hidden
+          if ($uninstall.ExitCode -ne 0 -or (Test-Path (Join-Path $target 'AirQualityIntelligence.exe'))) { throw 'Falló la desinstalación' }
       - uses: actions/upload-artifact@v6
         with:
           name: air-quality-windows-x64
           path: release/*.exe
           if-no-files-found: error
+  publish:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v7
+        with:
+          name: air-quality-windows-x64
+          path: windows
+      - name: Publish validated Windows release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          test "$GITHUB_REF_NAME" = "v$version"
+          gh release create "$GITHUB_REF_NAME" windows/*.exe --verify-tag --generate-notes

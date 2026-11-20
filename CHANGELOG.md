@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 2.2.0
+- Entrega Windows x64 con instalador NSIS y portátil, controles de CI y documentación de uso.
+
 ## 2.1.0
 - Pruebas de extremo a extremo en Electron, restauración validada y comprobación offline. Historial con búsqueda y paginación. Dependencias de compilación fuera del ejecutable.
 

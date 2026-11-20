@@ -1,42 +1,35 @@
-# Air Quality Intelligence
+# Air Quality Intelligence Desktop
 
 **Universidad Manuela Beltrán · Inteligencia de Negocios · Taller 6**
 
-**Integrantes:** Valery Michell Herrera y Daniel Felipe Rojas.
+**Equipo:** Valery Michell Herrera y Daniel Felipe Rojas.
 
-Aplicación en español para registrar PM2.5, PM10, CO₂ y CO, simular tratamientos de purificación y analizar sus resultados. Incluye historial en SQLite, cuatro indicadores principales, tres gráficos interactivos, filtros, alertas por reglas y descarga CSV.
+Aplicación para Windows que registra PM2.5, PM10, CO₂ y CO, simula tratamientos y conserva el historial en SQLite. Incluye escenarios reproducibles, control de pausa, comparación entre sesiones, dashboard BI, alertas, informes PDF y CSV y respaldos locales.
 
-## Instalación
+## Uso en Windows
 
-Requisito: Node.js 24 y npm. Ejecuta desde la raíz.
+Descarga `AirQualityIntelligence-Setup-2.2.0.exe` o `AirQualityIntelligence-Portable-2.2.0.exe` de los artefactos de una compilación verificada. El instalador crea un acceso en Inicio. La edición portátil guarda su perfil en `AirQualityData` junto al ejecutable. Ambos incluyen Electron y funcionan sin Node.js externo. [Instalación y desinstalación](docs/instalacion-windows.md) · [Manual de usuario](docs/manual-usuario.md)
+
+## Desarrollo reproducible
+
+Se requiere Node.js 24 con npm. Ejecuta desde la raíz del repositorio.
 
 ```sh
 npm ci
-npm run seed
-npm run dev
+npm run lint
+npm test
+npm run build
+npm run test:desktop
+npm run package:win
 ```
 
-Abre [127.0.0.1:3000](http://127.0.0.1:3000). La semilla es opcional y crea cuatro sesiones en una base vacía. También puedes pulsar **Simular entrada** y luego **Iniciar simulación**.
+En Windows, `npm run desktop` abre Electron desde el código. `npm run dev` conserva el flujo web con Vite en [127.0.0.1:3000](http://127.0.0.1:3000). `npm run seed` añade sesiones de muestra en una base web vacía. En escritorio, usa **Datos y ajustes → Recrear demostración** para generar el ejemplo.
 
-| Comando | Función |
-|---|---|
-| `npm run dev` | Express con el middleware de desarrollo de Vite |
-| `npm run build` | Compila React y los gráficos en `dist/` |
-| `npm start` | Sirve la compilación y el API en el mismo puerto |
-| `npm run seed` | Crea el escenario reproducible en una base vacía |
-| `npm run lint` / `npm test` | Análisis estático y pruebas de fórmulas, API y persistencia |
+Las salidas son simuladas. Las capturas manuales se identifican como datos sin verificar. Los umbrales representan reglas didácticas.
 
-Copia `.env.example` a `.env` para cambiar `PORT` (3000) o `DB_PATH` (`data/air.sqlite`). Los esquemas SQL se aplican al iniciar. Conserva el archivo SQLite para mantener el historial. Para comenzar una prueba limpia, asigna una ruta distinta a `DB_PATH`.
+## Documentación
 
-## Arquitectura y documentación
-
-React, Vite y Recharts sirven el dashboard. Express expone el API REST y Node 24 proporciona SQLite mediante `node:sqlite`. El servidor escucha en la interfaz local. La interfaz usa CSS nativo y las pruebas usan el ejecutor integrado de Node.
-
-- [Arquitectura](docs/arquitectura.md) y [requisitos](docs/requisitos.md)
-- [Base de datos](docs/base-de-datos.md) y [API REST](docs/api.md)
-- [Modelo y reglas](docs/modelo-purificacion.md) y [análisis reproducible](docs/resultados-analisis.md)
-- [Pruebas](docs/pruebas.md), [informe técnico](docs/informe-tecnico.md) y [guion del video](docs/guion-video.md)
-- [Historial de versiones](CHANGELOG.md) de la 0.1.0 a la 1.0.0
-
-El tratamiento y su salida son simulados. La captura manual indica el origen de la entrada y puede contener datos sin verificar. Las tasas y los umbrales son didácticos. Los resultados no certifican seguridad del aire ni desempeño de equipos.
-
+- [Arquitectura](docs/arquitectura.md) · [Base y migraciones](docs/base-de-datos.md) · [REST](docs/api.md)
+- [Modelo](docs/modelo-purificacion.md) · [Análisis de resultados](docs/resultados-analisis.md) · [Pruebas](docs/pruebas.md)
+- [Requisitos](docs/requisitos.md) · [Informe técnico](docs/informe-tecnico.md) · [Guion](docs/guion-video.md)
+- [Contribuciones](docs/contribuciones.md) · [Cambios por versión](CHANGELOG.md)
