@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 0.6.0
+- Alertas persistentes por entrada y salida, severidad, recomendaciones, estadísticas por tecnología y exportación CSV.
+
 ## 0.5.0
 - Panel BI con KPI, comparación, evolución, distribución y filtros de fecha, tecnología, sesión y contaminante.
 

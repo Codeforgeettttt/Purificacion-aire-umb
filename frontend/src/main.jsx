@@ -5,9 +5,11 @@ import Monitoring from './Monitoring.jsx';
 import Treatment from './Treatment.jsx';
 import Validation from './Validation.jsx';
 import Dashboard from './Dashboard.jsx';
+import Reports from './Reports.jsx';
 import './style.css';
 
 function App() {
+  const [alerts, setAlerts] = useState([]);
   const [rows, setRows] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [technologies, setTechnologies] = useState({ items: [] });
@@ -19,6 +21,7 @@ function App() {
     const [entries, treatments] = await Promise.all([api('measurements'), api('sessions')]);
     setRows(entries);
     setSessions(treatments);
+    setAlerts(await api('alerts'));
   }
   useEffect(() => {
     Promise.all([reload(), api('technologies').then(setTechnologies)])
@@ -31,7 +34,11 @@ function App() {
     async function poll() {
       try {
         const data = await api('sessions');
-        if (active) setSessions(data);
+        const notifications = await api('alerts');
+        if (active) {
+          setSessions(data);
+          setAlerts(notifications);
+        }
       } catch (e) {
         if (active) setError(e.message);
       } finally {
@@ -56,7 +63,7 @@ function App() {
       setBusy(false);
     }
   }
-  return <main><nav aria-label="Principal"><a href="#inicio">Inicio</a><a href="#dashboard">Panel BI</a><a href="#mediciones">Mediciones</a><a href="#tratamientos">Tratamientos</a><a href="#validacion">Validación</a></nav>
+  return <main><nav aria-label="Principal"><a href="#inicio">Inicio</a><a href="#dashboard">Panel BI</a><a href="#mediciones">Mediciones</a><a href="#tratamientos">Tratamientos</a><a href="#validacion">Validación</a><a href="#reportes">Reportes</a></nav>
     <header id="inicio"><p className="eyebrow">UMB · INTELIGENCIA DE NEGOCIOS</p><h1>Air Quality Intelligence</h1>
       <p>Monitorea la calidad del aire y evalúa tratamientos en un entorno simulado.</p></header>
     <div role="status" aria-live="polite">{busy ? 'Cargando…' : notice}</div>
@@ -65,6 +72,7 @@ function App() {
     <Monitoring rows={rows} action={action} busy={busy} />
     <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} />
     <Validation sessions={sessions} />
+    <Reports alerts={alerts} sessions={sessions} technologies={technologies} />
   </main>;
 }
 createRoot(document.getElementById('root')).render(<App />);
