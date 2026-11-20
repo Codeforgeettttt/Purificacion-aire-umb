@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 0.7.0
+- Pruebas de fórmulas, API, reinicio de SQLite, alertas y CSV; validación de identificadores.
+
 ## 0.6.0
 - Alertas persistentes por entrada y salida, severidad, recomendaciones, estadísticas por tecnología y exportación CSV.
 

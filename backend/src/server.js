@@ -6,17 +6,24 @@ import { installMonitoring, InputError } from './monitoring.js';
 import { installTreatment } from './treatment.js';
 import { installReporting } from './reporting.js';
 
-export async function createApp({ dbPath = process.env.DB_PATH || 'data/air.sqlite', development = false } = {}) {
+export async function createApp({ dbPath = process.env.DB_PATH || 'data/air.sqlite', development = false, clock = Date.now } = {}) {
   if (dbPath !== ':memory:') mkdirSync(dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
   db.exec('PRAGMA foreign_keys = ON');
   const app = express();
   app.locals.db = db;
+  app.disable('x-powered-by');
+  app.param('id', (_req, _res, next, value) => {
+    if (!/^\d+$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) < 1) {
+      return next(new InputError('Identificador inválido.'));
+    }
+    next();
+  });
   app.use(express.json({ limit: '16kb' }));
   app.get('/api/health', (_req, res) => res.json({ ok: db.prepare('SELECT 1 AS ok').get().ok === 1 }));
   installMonitoring(app, db);
-  installTreatment(app, db);
-  installReporting(app, db);
+  installTreatment(app, db, clock);
+  installReporting(app, db, clock);
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Ruta no encontrada.' }));
   app.use((err, _req, res, _next) => {
     const status = err instanceof InputError ? err.status : [400, 413].includes(err.status) ? err.status : 500;
