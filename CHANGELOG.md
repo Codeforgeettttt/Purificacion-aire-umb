@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.9.0
+- Centro de alertas filtrable y reportes locales por fecha o sesión en PDF con gráficos y CSV.
+
 ## 1.8.0
 - Filtros de escenario y origen, duración media, alertas, tendencias y eficiencia agregada.
 

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { keys, pollutants, severity } from './monitoring.js';
+import { writeReport } from './pdf-report.js';
+import { InputError, keys, pollutants, severity } from './monitoring.js';
 import { readSessions } from './treatment.js';
 
 const guidance = {
@@ -29,6 +30,19 @@ function syncAlerts(db, sessions) {
   }
 }
 
+const colombianDate = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Bogota' });
+function selectReport(db, now, query) {
+  const { from, to, session } = query;
+  if ([from, to].some(value => value !== undefined && (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value))) ||
+    (from && to && from > to) || (session !== undefined && !/^\d+$/.test(session))) {
+    throw new InputError('Periodo o sesión inválidos.');
+  }
+  return readSessions(db, now).filter(row => {
+    const date = colombianDate.format(row.started_at);
+    return row.result && (!from || date >= from) && (!to || date <= to) && (!session || String(row.id) === session);
+  });
+}
+
 function csv(sessions) {
   const headers = ['sesion', 'inicio_utc', 'tecnologia', 'origen_entrada', 'origen_salida', 'duracion_min',
     'nivel_final', 'resultado', ...keys.flatMap(key => {
@@ -50,7 +64,12 @@ export function installReporting(app, db, clock = Date.now) {
     syncAlerts(db, readSessions(db, clock()));
     res.json(db.prepare('SELECT * FROM alerts ORDER BY id DESC').all());
   });
-  app.get('/api/reports/treatments.csv', (_req, res) => {
-    res.attachment('tratamientos.csv').send(csv(readSessions(db, clock())));
+  app.get('/api/reports/treatments.csv', (req, res) => {
+    res.attachment('tratamientos.csv').send(csv(selectReport(db, clock(), req.query)));
+  });
+  app.get('/api/reports/treatments.pdf', (req, res) => {
+    const sessions = selectReport(db, clock(), req.query);
+    res.attachment('tratamientos.pdf');
+    writeReport(res, sessions);
   });
 }

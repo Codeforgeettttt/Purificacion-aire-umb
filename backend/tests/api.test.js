@@ -76,6 +76,10 @@ test('API completa, historial en disco y alertas sin duplicados', async () => {
     const csv = await request('reports/treatments.csv');
     assert.match(csv.headers.get('content-disposition'), /tratamientos\.csv/);
     assert.match(await csv.text(), /pm25_reduccion_pct/);
+    const pdf = await request('reports/treatments.pdf?session=' + session.id);
+    assert.match(pdf.headers.get('content-type'), /application\/pdf/);
+    assert.equal(Buffer.from(await pdf.arrayBuffer()).subarray(0, 5).toString(), '%PDF-');
+    assert.equal((await request('reports/treatments.pdf?from=bad')).status, 400);
   } finally {
     if (server) await close();
     rmSync(folder, { recursive: true });
