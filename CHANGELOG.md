@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.7.0
+- Comparación entre dos sesiones, gráfico por contaminante y evaluación de concentraciones residuales.
+
 ## 1.6.0
 - Pausa y reanudación persistentes, avance visible y explicación de cada tecnología.
 

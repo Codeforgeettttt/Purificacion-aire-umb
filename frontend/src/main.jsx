@@ -70,7 +70,7 @@ function App() {
       dashboard: <Dashboard sessions={sessions} technologies={technologies} />,
       mediciones: <Monitoring rows={rows} action={action} busy={busy} />,
       tratamientos: <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} />,
-      validacion: <Validation sessions={sessions} />,
+      validacion: <Validation sessions={sessions} technologies={technologies} />,
       reportes: <Reports alerts={alerts} sessions={sessions} technologies={technologies} />
     }} />;
 }
