@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { api } from './api.js';
 import Monitoring from './Monitoring.jsx';
 import Treatment from './Treatment.jsx';
+import Validation from './Validation.jsx';
 import './style.css';
 
 function App() {
@@ -54,13 +55,14 @@ function App() {
       setBusy(false);
     }
   }
-  return <main><nav aria-label="Principal"><a href="#inicio">Inicio</a><a href="#mediciones">Mediciones</a><a href="#tratamientos">Tratamientos</a></nav>
+  return <main><nav aria-label="Principal"><a href="#inicio">Inicio</a><a href="#mediciones">Mediciones</a><a href="#tratamientos">Tratamientos</a><a href="#validacion">Validación</a></nav>
     <header id="inicio"><p className="eyebrow">UMB · INTELIGENCIA DE NEGOCIOS</p><h1>Air Quality Intelligence</h1>
       <p>Monitorea la calidad del aire y evalúa tratamientos en un entorno simulado.</p></header>
     <div role="status" aria-live="polite">{busy ? 'Cargando…' : notice}</div>
     {error && <p role="alert">{error}</p>}
     <Monitoring rows={rows} action={action} busy={busy} />
     <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} />
+    <Validation sessions={sessions} />
   </main>;
 }
 createRoot(document.getElementById('root')).render(<App />);

@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { evaluate } from './validation.js';
 import { getMeasurement, InputError, keys, readConcentrations, severity } from './monitoring.js';
 
 export const millisecondsPerMinute = 500;
@@ -9,8 +10,8 @@ export function model(initial, outside, technology, minute) {
     const airChange = technology.ventilation ? 0.08 : 0;
     const capture = technology.hepa && key.startsWith('pm') ? 0.12 : 0;
     const rate = airChange + capture;
-    const equilibrium = rate ? airChange * outside[key] / rate : 0;
-    return [key, rate ? equilibrium + (initial[key] - equilibrium) * Math.exp(-rate * minute) : initial[key]];
+    const equilibrium = airChange ? airChange * outside[key] / rate : 0;
+    return [key, rate && minute > 0 ? equilibrium + (initial[key] - equilibrium) * Math.exp(-rate * minute) : initial[key]];
   }));
 }
 
@@ -37,6 +38,7 @@ function serialize(db, row) {
   const current = samples.at(-1);
   const final = row.status === 'running' ? null : current;
   return { ...row, exterior: JSON.parse(row.exterior), initial, current, final, samples,
+    result: final ? evaluate(initial, final) : null,
     coWarning: severity(initial.co, 'co') === 2 || severity(current.co, 'co') === 2 };
 }
 
@@ -81,4 +83,5 @@ export function installTreatment(app, db, clock = Date.now) {
   app.post('/api/sessions', (req, res) => res.status(201).json(startSession(db, req.body, clock())));
   app.post('/api/sessions/:id/stop', (req, res) => res.json(readSessions(db, clock(), req.params.id, true)));
 }
+
 

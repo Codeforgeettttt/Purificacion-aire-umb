@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 0.4.0
+- Evaluación por contaminante, tabla comparativa y cálculo de reducciones con base cero o incremento.
+
 ## 0.3.0
 - Motor de filtración y ventilación, sesiones y muestras persistentes, inicio, detención y gráfica de evolución.
 
