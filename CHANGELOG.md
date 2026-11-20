@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.2.0
+- Electron con SQLite persistente, ventana local aislada y autenticación del servidor interno.
+
 ## 1.1.0
 - Consultas de sesiones finalizadas, normalización de fechas y errores de red.
 
