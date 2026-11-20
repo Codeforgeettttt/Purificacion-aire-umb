@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.8.0
+- Filtros de escenario y origen, duración media, alertas, tendencias y eficiencia agregada.
+
 ## 1.7.0
 - Comparación entre dos sesiones, gráfico por contaminante y evaluación de concentraciones residuales.
 

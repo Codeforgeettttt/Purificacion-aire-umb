@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { dateTime, fields, number } from './api.js';
 import { Evolution } from './Treatment.jsx';
+import Analytics from './Analytics.jsx';
 
 const levels = ['Bajo', 'Moderado', 'Alto'];
 const dateParts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -10,15 +11,20 @@ const localDate = time => {
   return [parts.year, parts.month, parts.day].join('-');
 };
 
-export default function Dashboard({ sessions, technologies }) {
+export default function Dashboard({ sessions, technologies, alerts }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [technology, setTechnology] = useState('');
   const [chosen, setChosen] = useState('');
   const [key, setKey] = useState('pm25');
+  const [scenario, setScenario] = useState('');
+  const [level, setLevel] = useState('');
+  const [source, setSource] = useState('');
+  const scenarios = [...new Set(sessions.map(s => s.initial.scenario ?? 'Sin escenario'))];
   const filtered = sessions.filter(s => s.result &&
     (!from || localDate(s.started_at) >= from) && (!to || localDate(s.started_at) <= to) &&
-    (!technology || s.technology === technology));
+    (!technology || s.technology === technology) && (!scenario || (s.initial.scenario ?? 'Sin escenario') === scenario) &&
+    (!level || s.result.finalLevel === level) && (!source || s.initial.source === source));
   const session = filtered.find(s => String(s.id) === chosen) ?? filtered[0];
   const field = fields.find(f => f.key === key);
   const distribution = levels.map(level => ({
@@ -38,6 +44,15 @@ export default function Dashboard({ sessions, technologies }) {
       <label>Sesión<select value={session?.id ?? ''} onChange={e => setChosen(e.target.value)}>
         {!session && <option value="">Sin sesiones</option>}
         {filtered.map(s => <option key={s.id} value={s.id}>#{s.id} · {dateTime(s.started_at)}</option>)}
+      </select></label>
+      <label>Escenario<select value={scenario} onChange={e => setScenario(e.target.value)}>
+        <option value="">Todos</option>{scenarios.map(value => <option key={value}>{value}</option>)}
+      </select></label>
+      <label>Nivel final<select value={level} onChange={e => setLevel(e.target.value)}>
+        <option value="">Todos</option>{levels.map(value => <option key={value}>{value}</option>)}
+      </select></label>
+      <label>Origen<select value={source} onChange={e => setSource(e.target.value)}>
+        <option value="">Todos</option><option value="manual">Manual sin verificar</option><option value="simulated">Simulado</option>
       </select></label>
       <label>Contaminante<select value={key} onChange={e => setKey(e.target.value)}>
         {fields.map(f => <option key={f.key} value={f.key}>{f.label}</option>)}
@@ -72,6 +87,7 @@ export default function Dashboard({ sessions, technologies }) {
           </div>
         </article>
       </div>
+      <Analytics sessions={filtered} technologies={technologies} field={field} alerts={alerts} />
       <p className="muted">Reducción promedio en sesiones filtradas · {fields.map((f, i) =>
         f.label + ' ' + (averages[i] === null ? '—' : number(averages[i]) + '%')).join(' · ')}</p>
     </> : <p>No hay tratamientos finalizados para los filtros seleccionados. <a href="#mediciones">Registrar una entrada</a></p>}

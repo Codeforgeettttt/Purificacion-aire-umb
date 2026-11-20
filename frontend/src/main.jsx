@@ -67,7 +67,7 @@ function App() {
   return <Shell busy={busy} notice={notice} error={error}
     retry={() => action(() => api('technologies').then(setTechnologies))}
     panels={{
-      dashboard: <Dashboard sessions={sessions} technologies={technologies} />,
+      dashboard: <Dashboard sessions={sessions} technologies={technologies} alerts={alerts} />,
       mediciones: <Monitoring rows={rows} action={action} busy={busy} />,
       tratamientos: <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} />,
       validacion: <Validation sessions={sessions} technologies={technologies} />,
