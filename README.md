@@ -6,9 +6,13 @@
 
 Aplicación para Windows que registra PM2.5, PM10, CO₂ y CO, simula tratamientos y conserva el historial en SQLite. Incluye escenarios reproducibles, control de pausa, comparación entre sesiones, dashboard BI, alertas, informes PDF y CSV y respaldos locales.
 
-## Uso en Windows
+## Descargar para Windows x64
 
-Descarga `AirQualityIntelligence-Setup-2.2.0.exe` o `AirQualityIntelligence-Portable-2.2.0.exe` de los artefactos de una compilación verificada. El instalador crea un acceso en Inicio. La edición portátil guarda su perfil en `AirQualityData` junto al ejecutable. Ambos incluyen Electron y funcionan sin Node.js externo. [Instalación y desinstalación](docs/instalacion-windows.md) · [Manual de usuario](docs/manual-usuario.md)
+- [Instalador NSIS (.exe)](https://github.com/Codeforgeettttt/Purificacion-aire-umb/releases/download/v2.2.0/AirQualityIntelligence-Setup-2.2.0.exe) — instala la aplicación y crea un acceso en Inicio.
+- [Versión portátil (.exe)](https://github.com/Codeforgeettttt/Purificacion-aire-umb/releases/download/v2.2.0/AirQualityIntelligence-Portable-2.2.0.exe) — se ejecuta desde una carpeta con permiso de escritura y guarda sus datos en `AirQualityData`.
+- [Release v2.2.0 y notas de la versión](https://github.com/Codeforgeettttt/Purificacion-aire-umb/releases/tag/v2.2.0)
+
+Los ejecutables incluyen Electron, funcionan sin conexión para sus funciones principales y no requieren instalar Node.js. Se distribuyen sin firma digital. [Instalación y desinstalación](docs/instalacion-windows.md) · [Manual de usuario](docs/manual-usuario.md)
 
 ## Desarrollo reproducible
 
