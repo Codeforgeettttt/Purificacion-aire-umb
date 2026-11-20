@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 0.5.0
+- Panel BI con KPI, comparación, evolución, distribución y filtros de fecha, tecnología, sesión y contaminante.
+
 ## 0.4.0
 - Evaluación por contaminante, tabla comparativa y cálculo de reducciones con base cero o incremento.
 
