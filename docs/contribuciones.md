@@ -2,6 +2,10 @@
 
 Valery Michell Herrera usa `Codeforgeettttt`. GitHub vincula el historial de Daniel Felipe Rojas con `CodeForJellyfish`, cuenta con permiso de escritura comprobado.
 
+**Julian Andres Peñuela** figura como colaborador del proyecto.
+
+## Plan de trabajo por versión
+
 | Versión | Responsable previsto | Revisión prevista | Tarea |
 |---|---|---|---|
 | 1.1 | Valery | Daniel | Estabilización |
@@ -17,4 +21,4 @@ Valery Michell Herrera usa `Codeforgeettttt`. GitHub vincula el historial de Dan
 | 2.1 | Valery | Daniel | Calidad y seguridad |
 | 2.2 | Daniel | Valery | Entrega Windows |
 
-Estas son asignaciones previstas. Para autoría efectiva, consulta los commits y revisiones del PR. Los cambios preparados por Codex se publican desde la cuenta autenticada de Valery. Las revisiones del equipo se acreditan al realizarse. [Commits de escritorio integrados](https://github.com/Codeforgeettttt/Purificacion-aire-umb/pull/2/commits). En esta etapa el historial enlazado contiene cambios preparados por Codex bajo la cuenta autenticada. Daniel conserva sus aportes previos; la revisión cruzada y los nuevos aportes de ambos integrantes se registran al producirse.
+Estas son asignaciones previstas. Para autoría efectiva, consulta los commits y revisiones del PR. Los cambios preparados por Codex se publican desde la cuenta autenticada de Valery. Las revisiones del equipo se acreditan al realizarse. [Commits de escritorio integrados](https://github.com/Codeforgeettttt/Purificacion-aire-umb/pull/2/commits). En esta etapa el historial enlazado contiene cambios preparados por Codex bajo la cuenta autenticada. Daniel conserva sus aportes previos; la revisión cruzada y los nuevos aportes del equipo se registran al producirse.
