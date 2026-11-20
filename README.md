@@ -3,7 +3,7 @@
 **Taller 6 · Purificación de Aire**  
 Universidad Manuela Beltrán (UMB) · Inteligencia de Negocios
 
-Aplicación de escritorio para registrar la calidad del aire, simular su purificación y evaluar los resultados. El proyecto desarrolla el reto del Taller 6: identificar contaminantes, controlar un tratamiento simulado y comparar la calidad del aire antes y después con indicadores de inteligencia de negocios.
+Aplicación de escritorio que simula el tratamiento del aire y permite identificar qué contaminantes disminuyen y cuáles permanecen elevados. Desarrollada para el Taller 6 de Inteligencia de Negocios, registra mediciones, conserva el historial en SQLite y presenta los resultados en un tablero interactivo.
 
 ## Descargar para Windows x64
 
@@ -34,6 +34,10 @@ Las salidas corresponden a una simulación. Las capturas manuales se identifican
 
 [Manual de usuario](docs/manual-usuario.md) · [Guion de la demostración](docs/guion-video.md)
 
+## Resultado de ejemplo
+
+En el escenario de demostración, 15 minutos simulados de tratamiento con HEPA reducen el PM2.5 de **60 a 9,92 µg/m³** (83,47 %). El CO se mantiene en **10 ppm**. Esta comparación muestra por qué la evaluación se hace por contaminante y considera tanto el porcentaje de reducción como la concentración final. [Escenario reproducible y comparación de tecnologías](docs/resultados-analisis.md)
+
 ## Desarrollo y pruebas
 
 El proyecto integra React, Vite y Recharts para la interfaz, Express para la API local, SQLite para la persistencia y Electron para la distribución de escritorio. Para trabajar con el código fuente se requiere Node.js 24.
@@ -51,6 +55,6 @@ En Windows, `npm run desktop` compila y abre la aplicación. Para trabajar en mo
 
 - **Valery Michell Herrera** — integrante del equipo. [GitHub](https://github.com/Codeforgeettttt)
 - **Daniel Felipe Rojas** — integrante del equipo. [GitHub](https://github.com/CodeForJellyfish)
-- **Julián** — colaborador del proyecto.
+- **Julian Andres Peñuela** — colaborador del proyecto.
 
 [Registro de contribuciones](docs/contribuciones.md)
