@@ -17,7 +17,7 @@ export function model(initial, outside, technology, minute) {
 
 function saveProgress(db, row, now, stop = false) {
   if (row.status !== 'running') return;
-  const minute = Math.min(row.duration, Math.max(0, Math.floor((now - row.started_at) / millisecondsPerMinute)));
+  const minute = Math.min(row.duration, Math.max(0, Math.floor(((row.paused_at ?? now) - row.started_at - row.paused_ms) / millisecondsPerMinute)));
   const initial = getMeasurement(db, row.measurement_id);
   const technology = db.prepare('SELECT * FROM technologies WHERE id=?').get(row.technology);
   const outside = JSON.parse(row.exterior);
@@ -37,12 +37,13 @@ function serialize(db, row) {
   const initial = getMeasurement(db, row.measurement_id);
   const current = samples.at(-1);
   const final = row.status === 'running' ? null : current;
-  return { ...row, exterior: JSON.parse(row.exterior), initial, current, final, samples,
+  const status = row.status === 'running' && row.paused_at !== null ? 'paused' : row.status;
+  return { ...row, status, exterior: JSON.parse(row.exterior), initial, current, final, samples,
     result: final ? evaluate(initial, final) : null,
     coWarning: severity(initial.co, 'co') === 2 || severity(current.co, 'co') === 2 };
 }
 
-export function readSessions(db, now, id, stop = false) {
+export function readSessions(db, now, id, command) {
   const rows = id === undefined ? db.prepare('SELECT * FROM sessions ORDER BY id DESC').all() :
     [db.prepare('SELECT * FROM sessions WHERE id=?').get(id)];
   if (!rows[0] && id !== undefined) throw new InputError('Sesión no encontrada.', 404);
@@ -50,7 +51,15 @@ export function readSessions(db, now, id, stop = false) {
   try {
     const result = rows.map(row => {
       const current = db.prepare('SELECT * FROM sessions WHERE id=?').get(row.id);
-      saveProgress(db, current, now, stop);
+      if (current.status !== 'running') return serialize(db, current);
+      saveProgress(db, current, now, command === 'stop');
+      if (command === 'pause' && current.paused_at === null) {
+        db.prepare("UPDATE sessions SET paused_at=? WHERE id=? AND status='running'").run(now, row.id);
+      }
+      if (command === 'resume' && current.paused_at !== null) {
+        db.prepare("UPDATE sessions SET paused_ms=paused_ms+?, paused_at=NULL WHERE id=? AND status='running'")
+          .run(Math.max(0, now - current.paused_at), row.id);
+      }
       return serialize(db, db.prepare('SELECT * FROM sessions WHERE id=?').get(row.id));
     });
     db.exec('COMMIT');
@@ -75,13 +84,25 @@ export function startSession(db, input, now) {
 }
 export function installTreatment(app, db, clock = Date.now) {
   db.exec(readFileSync(new URL('./database/002-treatment.sql', import.meta.url), 'utf8'));
+  if (!db.prepare('PRAGMA table_info(sessions)').all().some(column => column.name === 'paused_at')) {
+    db.exec('BEGIN');
+    try {
+      db.exec(readFileSync(new URL('./database/005-session-pause.sql', import.meta.url), 'utf8'));
+      db.exec('COMMIT');
+    } catch (error) {
+      db.exec('ROLLBACK');
+      throw error;
+    }
+  }
   app.get('/api/technologies', (_req, res) => res.json({
     items: db.prepare('SELECT id,label FROM technologies').all(), outdoorDefault
   }));
   app.get('/api/sessions', (_req, res) => res.json(readSessions(db, clock())));
   app.get('/api/sessions/:id', (req, res) => res.json(readSessions(db, clock(), req.params.id)));
   app.post('/api/sessions', (req, res) => res.status(201).json(startSession(db, req.body, clock())));
-  app.post('/api/sessions/:id/stop', (req, res) => res.json(readSessions(db, clock(), req.params.id, true)));
+  for (const verb of ['pause', 'resume', 'stop']) {
+    app.post('/api/sessions/:id/' + verb, (req, res) => res.json(readSessions(db, clock(), req.params.id, verb)));
+  }
 }
 
 

@@ -1,5 +1,41 @@
 # Registro de cambios
 
+## 2.2.0
+- Entrega Windows x64 con instalador NSIS y portátil, controles de CI y documentación de uso.
+
+## 2.1.0
+- Pruebas de extremo a extremo en Electron, restauración validada y comprobación offline. Historial con búsqueda y paginación. Dependencias de compilación fuera del ejecutable.
+
+## 2.0.0
+- Respaldo y restauración SQLite, preferencias persistentes, confirmaciones y regeneración de datos demo.
+
+## 1.9.0
+- Centro de alertas filtrable y reportes locales por fecha o sesión en PDF con gráficos y CSV.
+
+## 1.8.0
+- Filtros de escenario y origen, duración media, alertas, tendencias y eficiencia agregada.
+
+## 1.7.0
+- Comparación entre dos sesiones, gráfico por contaminante y evaluación de concentraciones residuales.
+
+## 1.6.0
+- Pausa y reanudación persistentes, avance visible y explicación de cada tecnología.
+
+## 1.5.0
+- Escenarios reproducibles, captura personalizada, tendencias, filtros y migración de origen.
+
+## 1.4.0
+- Navegación lateral, módulos enfocados, tema persistente y feedback accesible.
+
+## 1.3.0
+- Instalador NSIS, ejecutable portátil, icono y compilación de Windows reproducible.
+
+## 1.2.0
+- Electron con SQLite persistente, ventana local aislada y autenticación del servidor interno.
+
+## 1.1.0
+- Consultas de sesiones finalizadas, normalización de fechas y errores de red.
+
 ## 1.0.0
 - Datos de demostración, informe técnico, resultados reproducibles, guía de instalación y guion de video.
 

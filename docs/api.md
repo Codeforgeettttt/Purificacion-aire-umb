@@ -16,7 +16,16 @@ Prefijo `/api`. Los POST aceptan JSON; los errores tienen forma `{"error":"mensa
 | POST /sessions | Crea una sesión |
 | POST /sessions/:id/stop | Detiene la sesión o devuelve su estado final |
 | GET /alerts | Actualiza y consulta alertas persistidas |
+| POST /sessions/:id/pause /resume | Pausa o reanuda el reloj simulado |
 | GET /reports/treatments.csv | Exporta resultados finalizados |
+| GET /reports/treatments.pdf | Informe local con barras, resumen y resultados |
+| GET /settings | Obtiene ajustes |
+| POST /settings | Actualiza tema y duración |
+| GET /data/backup | Descarga SQLite |
+| POST /data/restore | Restaura un SQLite compatible enviado como octet-stream |
+| POST /data/demo | Reemplaza registros de demostración |
+
+Los reportes admiten `from`, `to` y `session`. La simulación de entradas acepta `scenario`, `seed` y `values` para un escenario personalizado.
 
 Cuerpo de ejemplo para iniciar una sesión de 15 minutos con HEPA.
 

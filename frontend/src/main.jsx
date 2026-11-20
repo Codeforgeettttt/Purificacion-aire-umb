@@ -6,9 +6,12 @@ import Treatment from './Treatment.jsx';
 import Validation from './Validation.jsx';
 import Dashboard from './Dashboard.jsx';
 import Reports from './Reports.jsx';
+import Shell from './Shell.jsx';
+import DataManagement from './DataManagement.jsx';
 import './style.css';
 
 function App() {
+  const [settings, setSettings] = useState({ theme: 'light', defaultDuration: 15 });
   const [alerts, setAlerts] = useState([]);
   const [rows, setRows] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -24,7 +27,7 @@ function App() {
     setAlerts(await api('alerts'));
   }
   useEffect(() => {
-    Promise.all([reload(), api('technologies').then(setTechnologies)])
+    Promise.all([reload(), api('technologies').then(setTechnologies), api('settings').then(setSettings)])
       .catch(e => setError(e.message)).finally(() => setBusy(false));
   }, []);
   useEffect(() => {
@@ -63,16 +66,16 @@ function App() {
       setBusy(false);
     }
   }
-  return <main><nav aria-label="Principal"><a href="#inicio">Inicio</a><a href="#dashboard">Panel BI</a><a href="#mediciones">Mediciones</a><a href="#tratamientos">Tratamientos</a><a href="#validacion">Validación</a><a href="#reportes">Reportes</a></nav>
-    <header id="inicio"><p className="eyebrow">UMB · INTELIGENCIA DE NEGOCIOS</p><h1>Air Quality Intelligence</h1>
-      <p>Monitorea la calidad del aire y evalúa tratamientos en un entorno simulado.</p></header>
-    <div role="status" aria-live="polite">{busy ? 'Cargando…' : notice}</div>
-    {error && <p role="alert">{error}</p>}
-    <Dashboard sessions={sessions} technologies={technologies} />
-    <Monitoring rows={rows} action={action} busy={busy} />
-    <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} />
-    <Validation sessions={sessions} />
-    <Reports alerts={alerts} sessions={sessions} technologies={technologies} />
-  </main>;
+  return <Shell busy={busy} notice={notice} error={error} theme={settings.theme}
+    changeTheme={theme => action(async () => setSettings(await api('settings', { theme })))}
+    retry={() => action(() => api('technologies').then(setTechnologies))}
+    panels={{
+      dashboard: <Dashboard sessions={sessions} technologies={technologies} alerts={alerts} />,
+      mediciones: <Monitoring rows={rows} action={action} busy={busy} />,
+      tratamientos: <Treatment rows={rows} sessions={sessions} technologies={technologies} action={action} busy={busy} defaultDuration={settings.defaultDuration} />,
+      validacion: <Validation sessions={sessions} technologies={technologies} />,
+      reportes: <Reports alerts={alerts} sessions={sessions} technologies={technologies} />,
+      datos: <DataManagement action={action} busy={busy} settings={settings} updateSettings={setSettings} />
+    }} />;
 }
 createRoot(document.getElementById('root')).render(<App />);

@@ -31,7 +31,7 @@ En el caso reproducible de 15 minutos, HEPA reduce PM2.5 de 60 a 9,92 µg/m³ y 
 
 ## Limitaciones
 
-Las concentraciones de salida proceden del simulador. Se asume mezcla homogénea, tasas constantes y aire exterior fijo. Los umbrales representan criterios operativos del taller. La aplicación funciona en entorno local y está pensada para demostración académica.
+Las concentraciones de salida proceden del simulador. Se asume mezcla homogénea, tasas constantes y aire exterior fijo. Los umbrales representan criterios operativos del taller. La aplicación funciona en entorno local y está pensada para demostración académica. Electron integra Express y SQLite en una aplicación Windows con almacenamiento fuera del paquete. Los reportes y respaldos se generan sin acceso a internet. Las sesiones conservan los tiempos de pausa y el tablero permite comparar escenarios con unidades independientes.
 
 ## Conclusiones
 

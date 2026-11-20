@@ -28,6 +28,8 @@ test('API completa, historial en disco y alertas sin duplicados', async () => {
     assert.deepEqual(await (await request('health')).json(), { ok: true });
     assert.equal((await request('measurements', { pm25: 80, pm10: 4, co2: 0, co: 0 })).status, 400);
     assert.equal((await request('measurements/999')).status, 404);
+    assert.equal((await request('measurements/0')).status, 400);
+    assert.equal((await request('measurements/NaN')).status, 400);
     assert.equal((await request('absent')).status, 404);
     const entryResponse = await request('measurements', { pm25: 60, pm10: 100, co2: 1400, co: 10 });
     assert.equal(entryResponse.status, 201);
@@ -56,6 +58,13 @@ test('API completa, historial en disco y alertas sin duplicados', async () => {
     assert.ok(finished.result.reductions.pm25 > 80);
     const other = await (await request('sessions', { measurementId: entry.id, duration: 15, technology: 'carbon' })).json();
     now += 1000;
+    const paused = await (await request('sessions/' + other.id + '/pause', {})).json();
+    assert.equal(paused.status, 'paused');
+    now += 10000;
+    const stillPaused = await (await request('sessions/' + other.id)).json();
+    assert.equal(stillPaused.current.minute, 2);
+    const resumed = await (await request('sessions/' + other.id + '/resume', {})).json();
+    assert.equal(resumed.status, 'running');
     const stopped = await (await request('sessions/' + other.id + '/stop', {})).json();
     assert.equal(stopped.status, 'stopped');
     assert.equal(stopped.final.minute, 2);
@@ -67,6 +76,10 @@ test('API completa, historial en disco y alertas sin duplicados', async () => {
     const csv = await request('reports/treatments.csv');
     assert.match(csv.headers.get('content-disposition'), /tratamientos\.csv/);
     assert.match(await csv.text(), /pm25_reduccion_pct/);
+    const pdf = await request('reports/treatments.pdf?session=' + session.id);
+    assert.match(pdf.headers.get('content-type'), /application\/pdf/);
+    assert.equal(Buffer.from(await pdf.arrayBuffer()).subarray(0, 5).toString(), '%PDF-');
+    assert.equal((await request('reports/treatments.pdf?from=bad')).status, 400);
   } finally {
     if (server) await close();
     rmSync(folder, { recursive: true });

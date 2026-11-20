@@ -1,5 +1,8 @@
 node_modules/
 dist/
+release/
+desktop/icon.ico
+desktop/icon.png
 data/
 .env
 

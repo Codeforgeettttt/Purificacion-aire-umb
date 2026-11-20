@@ -5,8 +5,9 @@ import { DatabaseSync } from 'node:sqlite';
 import { installMonitoring, InputError } from './monitoring.js';
 import { installTreatment } from './treatment.js';
 import { installReporting } from './reporting.js';
+import { installData } from './data.js';
 
-export async function createApp({ dbPath = process.env.DB_PATH || 'data/air.sqlite', development = false, clock = Date.now } = {}) {
+export async function createApp({ dbPath = process.env.DB_PATH || 'data/air.sqlite', development = false, clock = Date.now, accessToken, staticDir = resolve('dist') } = {}) {
   if (dbPath !== ':memory:') mkdirSync(dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
   db.exec('PRAGMA foreign_keys = ON');
@@ -19,11 +20,19 @@ export async function createApp({ dbPath = process.env.DB_PATH || 'data/air.sqli
     }
     next();
   });
+  if (accessToken) {
+    app.use((req, res, next) => {
+      if (req.get('X-Air-Desktop') !== accessToken) return res.status(403).json({ error: 'Acceso local no autorizado.' });
+      res.set('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'");
+      next();
+    });
+  }
   app.use(express.json({ limit: '16kb' }));
   app.get('/api/health', (_req, res) => res.json({ ok: db.prepare('SELECT 1 AS ok').get().ok === 1 }));
   installMonitoring(app, db);
   installTreatment(app, db, clock);
   installReporting(app, db, clock);
+  installData(app, db, clock);
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Ruta no encontrada.' }));
   app.use((err, _req, res, _next) => {
     const status = err instanceof InputError ? err.status : [400, 413].includes(err.status) ? err.status : 500;
@@ -36,7 +45,7 @@ export async function createApp({ dbPath = process.env.DB_PATH || 'data/air.sqli
     const vite = await createServer({ server: { middlewareMode: true }, appType: 'spa' });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(resolve('dist')));
+    app.use(express.static(staticDir));
   }
   return app;
 }
