@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.0.0
+- Datos de demostración, informe técnico, resultados reproducibles, guía de instalación y guion de video.
+
 ## 0.7.0
 - Pruebas de fórmulas, API, reinicio de SQLite, alertas y CSV; validación de identificadores.
 
