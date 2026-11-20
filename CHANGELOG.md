@@ -1,5 +1,8 @@
 # Registro de cambios
 
+## 1.3.0
+- Instalador NSIS, ejecutable portátil, icono y compilación de Windows reproducible.
+
 ## 1.2.0
 - Electron con SQLite persistente, ventana local aislada y autenticación del servidor interno.
 

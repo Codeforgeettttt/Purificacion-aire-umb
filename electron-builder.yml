@@ -1,0 +1,28 @@
+appId: co.edu.umb.airquality
+productName: AirQualityIntelligence
+directories:
+  output: release
+files:
+  - desktop/**/*
+  - backend/src/**/*
+  - dist/**/*
+  - package.json
+asar: true
+win:
+  icon: desktop/icon.ico
+  signAndEditExecutable: true
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+nsis:
+  artifactName: AirQualityIntelligence-Setup-${version}.${ext}
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  createDesktopShortcut: true
+portable:
+  artifactName: AirQualityIntelligence-Portable-${version}.${ext}
+publish: null
